@@ -1,0 +1,24 @@
+<html>
+<head>
+    <meta charset="utf-8">
+</head>
+<body>
+<style>
+    p {
+        font-family: "Montserrat", sans-serif;
+    }
+
+    a {
+        font-family: "Montserrat", sans-serif;
+        font-weight: bold;
+    }
+</style>
+<p>
+    Чтобы подтвердить свою почту и активировать аккаунт, перейдите по
+    <a text="по этой ссылке" th:href="${link}"> этой ссылке</a>.
+    <br>Она будет действительна в течение <strong th:text="${tokenTtl}">60</strong>
+    <strong>минут.</strong></br>
+    <br>Если Вы не активируете свой аккаунт, то все его данные будут удалены.
+</p>
+</body>
+</html>

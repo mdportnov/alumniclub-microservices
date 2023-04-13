@@ -1,0 +1,3 @@
+# Auth for dev/prod prometheus, used on devops-it.mephi.ru
+basic_auth_users:
+  admin: "$2a$12$xfCEkTfz4ufd46UmwnHg9cXFee5BlwZNVMv2/KNXsQzmbknUYf.FJxhq"

@@ -1,0 +1,42 @@
+.*
+!.gitignore
+!.git*
+*~
+
+### OSX ###
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+
+### Java ###
+*.class
+# Package Files #
+#*.jar
+*.war
+
+.idea
+*.iws
+*.iml
+*.ipr
+
+### Gradle ###
+.gradle
+/build/
+
+/uploads
+/logs
+
+/services/.gradle
+/services/*/.gradle/
+/services/*/build/
+/services/build/
+/deployment/data/
+/services/logs/
+/services/docs/
+/services/app/logs/
+/services/broadcast-service/logs/
+/services/shared/gradle/
+/services/app/gradle/
+/services/uploads/
+/services/gradle.properties

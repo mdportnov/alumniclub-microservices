@@ -1,0 +1,13 @@
+global:
+  resolve_timeout: 10s
+
+route:
+  receiver: "telegram-default"
+
+receivers:
+  - name: "telegram-default"
+    telegram_configs:
+      - bot_token: bot_token
+        chat_id: -729114371
+        api_url: https://api.telegram.org
+        parse_mode: ""

@@ -1,0 +1,54 @@
+global:
+  scrape_interval: 10s # How frequently to scrape targets
+  evaluation_interval: 10s  # How frequently to evaluate rules
+
+# Load and evaluate rules in this file every 'evaluation_interval' seconds.
+rule_files:
+  - "rules.yml"
+
+scrape_configs:
+  - job_name: "main-application"
+    scrape_interval: 15s
+    metrics_path: "/api/actuator/prometheus"
+    static_configs:
+      - targets: [ "$PROMETHEUS_TARGET_APP" ]
+    basic_auth:
+      username: "$ACTUATOR_ADMIN_LOGIN" # Auth /api/actuator/prometheus
+      password: "$ACTUATOR_ADMIN_PASSWORD"
+
+  - job_name: "broadcast-service"
+    scrape_interval: 15s
+    metrics_path: "/broadcast-service/actuator/prometheus"
+    static_configs:
+      - targets: [ "$PROMETHEUS_TARGET_BROADCAST" ]
+    basic_auth:
+      username: "$PROMETHEUS_USERNAME"
+      password: "$PROMETHEUS_PASSWORD"
+
+  - job_name: "image-service"
+    scrape_interval: 15s
+    metrics_path: "/image-service/actuator/prometheus"
+    static_configs:
+      - targets: [ "$PROMETHEUS_TARGET_IMAGE_SERVICE" ]
+    basic_auth:
+      username: "$PROMETHEUS_USERNAME"
+      password: "$PROMETHEUS_PASSWORD"
+
+  - job_name: "recommendation-service"
+    scrape_interval: 15s
+    metrics_path: "/recommendations/api/actuator/prometheus"
+    static_configs:
+      - targets: [ "$PROMETHEUS_TARGET_RECOMMENDATION_SERVICE" ]
+    basic_auth:
+      username: "$PROMETHEUS_USERNAME"
+      password: "$PROMETHEUS_PASSWORD"
+
+  - job_name: 'nodeexporter'
+    scrape_interval: 15s
+    static_configs:
+      - targets: [ 'nodeexporter:9100' ]
+
+  - job_name: 'cadvisor'
+    scrape_interval: 15s
+    static_configs:
+      - targets: [ 'cadvisor:8080' ]

@@ -1,0 +1,20 @@
+# Dev Profile Docker
+
+debug: true
+
+# RabbitMQ
+
+rabbitmq:
+  host: ${RABBIT_HOST:localhost}
+  port: ${RABBIT_PORT:5672}
+  username: ${RABBITMQ_DEFAULT_USER:admin}
+  password: ${RABBITMQ_DEFAULT_PASS:password}
+  replyTimeout: 60000
+
+# API Documentation
+
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true

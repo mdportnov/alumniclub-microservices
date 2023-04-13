@@ -1,0 +1,57 @@
+version: '3.8'
+services:
+  app:
+    image: app:latest
+    env_file:
+      - "../env/.env"
+      - "../env/.dev.env"
+
+  broadcast-service:
+    image: broadcast-service:latest
+    env_file:
+      - "../env/.env"
+      - "../env/.dev.env"
+
+  image-service:
+    image: image-service:latest
+    env_file:
+      - "../env/.env"
+      - "../env/.dev.env"
+
+  recommendation-service:
+    image: recommendation-service:latest
+    env_file:
+      - "../env/.env"
+      - "../env/.dev.env"
+
+  mysql:
+    image: mysql:latest
+    env_file:
+      - "../env/.env"
+      - "../env/.dev.env"
+    volumes:
+      - "../config/init/01.dev.sql:/docker-entrypoint-initdb.d/01.sql"
+      - "../data/mysql:/var/lib/mysql"
+    ports:
+      - "3307:3306"
+
+  promtail:
+    build:
+      context: .
+      dockerfile: ../docker-common/runPromtail.Dockerfile
+    env_file:
+      - "../env/.env"
+      - "../env/.dev.env"
+
+  postfix:
+    image: marvambass/versatile-postfix:latest
+    command:
+      - alumniclub.mephi.ru
+      - no-reply:@TC4WUxXuzvduMGmz
+    ports:
+      - "25:25"
+    volumes:
+      - ../data/postfix/spool:/var/spool/postfix
+      - ../data/postfix/log:/var/log
+      - ../data/postfix/keys/private.pem:/etc/postfix/dkim/dkim.key
+    restart: always

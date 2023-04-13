@@ -1,0 +1,67 @@
+server:
+  port: ${RECOMMENDATION_SERVICE_PORT:8085}
+  forward-headers-strategy: framework
+  servlet:
+    context-path: /recommendations/api
+
+# Spring
+
+spring:
+  application:
+    name: recommendation-service
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3307}/${MARIADB_NAME_RECOMMENDATION:AlumniClub_Recommendations}
+    username: ${MARIADB_USER_RECOMMENDATION:recommendationer}
+    password: ${MARIADB_PASSWORD_RECOMMENDATION:password}
+
+  jpa:
+    show-sql: true
+    format-sql: true
+    generate-ddl: off
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+      ddl-auto: none
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        ddl-auto: none
+
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+    port: ${RABBIT_PORT:49154}
+    username: ${RABBITMQ_DEFAULT_USER:admin}
+    password: ${RABBITMQ_DEFAULT_PASS:password}
+
+# Actuator
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      enabled: true
+    info:
+      enabled: true
+
+# Logging
+
+logging:
+  file.name: "recommendation-service"
+  path.main: "./logs"
+  pattern:
+    file: "[%d{yyyy-MM-dd HH:mm:ss.SSS}] %-5level [%t] [%logger - %line]: %m%n"
+    console: "[%boldWhite(%d{YYYY-MM-dd HH:mm:ss.SSS})] [%X{userId} %X{requestId}] [%thread] %cyan(%-5level) %yellow(%logger{36}) - %msg%n"
+  level:
+    root: INFO
+
+milvus:
+  host: ${MILVUS_HOST:localhost}
+  port: ${MILVUS_PORT:19530}

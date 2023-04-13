@@ -1,0 +1,63 @@
+server:
+  port: ${BROADCAST_SERVICE_PORT:8083}
+  forward-headers-strategy: framework
+  servlet:
+    context-path: /broadcast-service
+
+# Spring
+
+spring:
+  application:
+    name: broadcast-service
+
+  profiles:
+    active: dev
+
+  rabbitmq:
+    host: ${RABBIT_HOST:localhost}
+    port: ${RABBIT_PORT:5672}
+    username: ${RABBITMQ_DEFAULT_USER:admin}
+    password: ${RABBITMQ_DEFAULT_PASS:password}
+
+  mail:
+    host: "mail-server.mephi.ru"
+    port: 587
+    username: ${MAIL_SERVICE_USERNAME:mail}
+    password: ${MAIL_SERVICE_PASSWORD:password}
+    properties.mail.smtp.auth: true
+    properties.mail.smtp.starttls.enable: true
+    from-mail: "mail@mail.com"
+    default-from-name: "Сообщество МИФИсТЫ"
+
+# Actuator
+
+management:
+  endpoints:
+    web:
+      base-path: /actuator
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+      enabled: true
+    info:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        "[http.server.requests]": true
+
+# Logging
+
+logging:
+  file.name: "broadcast-service"
+  path.main: "./logs"
+  pattern:
+    file: "[%d{yyyy-MM-dd HH:mm:ss.SSS}] %-5level [%t] [%logger - %line]: %m%n"
+    console: "[%boldWhite(%d{YYYY-MM-dd HH:mm:ss.SSS})] [%X{userId} %X{requestId}] [%thread] %cyan(%-5level) %yellow(%logger{36}) - %msg%n"
+  level:
+    root: INFO

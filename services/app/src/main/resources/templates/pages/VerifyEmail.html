@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>МИФИсТЫ</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap');
+
+        body, html {
+            margin: 0;
+            padding: 0;
+        }
+
+        .main {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        .banner {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .banner > img {
+            width: 10vw;
+            height: 10vw;
+            margin: auto;
+            display: block;
+            border-radius: 100%;
+        }
+
+        .banner > h1 {
+            font-family: "Montserrat", sans-serif;
+            background: -webkit-linear-gradient(#2E65F3, #00BBEE);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-top: 32px;
+            width: 100%;
+            font-size: 5vw;
+            font-weight: 700;
+        }
+    </style>
+</head>
+
+<body>
+<div class="main">
+    <div class="banner">
+        <img src="https://alumniclub.mephi.ru/email/static/alumni-icon-solid.png" alt="Логотип">
+        <h1 th:utext="${message}"></h1>
+    </div>
+</div>
+</body>
+
+</html>

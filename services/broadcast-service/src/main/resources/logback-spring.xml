@@ -1,0 +1,87 @@
+<configuration scan="true" scanPeriod="1 seconds">
+    <include resource="org/springframework/boot/logging/logback/default.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <springProperty name="LOG_PATH" source="logging.path.main" defaultValue="./logs"/>
+    <springProperty name="LOG_FILE" source="logging.file.name" defaultValue="broadcast-service"/>
+    <springProperty name="LOG_PATTERN_CONSOLE" source="logging.pattern.console"/>
+    <springProperty name="LOG_PATTERN_FILE" source="logging.pattern.file"/>
+
+    <appender name="console" additivity="false" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${LOG_PATTERN_CONSOLE}</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="springLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${LOG_FILE}.log</file>
+        <encoder>
+            <pattern>${LOG_PATTERN_FILE}</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>
+                ${LOG_PATH}/${LOG_FILE}.%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <maxFileSize>10MB</maxFileSize>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <springProfile name="prod">
+        <logger name="ru.mephi.alumniclub.broadcast.service.impl.EmailSenderImpl" level="INFO" additivity="false">
+            <appender-ref ref="springLog"/>
+        </logger>
+        <logger name="org.springframework" level="INFO" additivity="false">
+            <appender-ref ref="springLog"/>
+            <appender-ref ref="console"/>
+        </logger>
+        <root level="INFO">
+            <appender-ref ref="console"/>
+            <appender-ref ref="springLog"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="dev | local">
+        <logger name="ru.mephi.alumniclub.broadcast.service.impl.EmailSenderImpl" level="INFO" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="springLog"/>
+        </logger>
+        <logger name="org.springframework" level="DEBUG" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="springLog"/>
+        </logger>
+        <logger name="java.lang.Exception" level="DEBUG" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="springLog"/>
+        </logger>
+        <root level="DEBUG">
+            <appender-ref ref="console"/>
+            <appender-ref ref="springLog"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="test">
+        <logger name="ru.mephi.alumniclub.broadcast.service.impl.EmailSenderImpl" level="INFO" additivity="false">
+            <appender-ref ref="console"/>
+        </logger>
+        <logger name="org.springframework" level="DEBUG" additivity="false">
+            <appender-ref ref="console"/>
+        </logger>
+        <logger name="java.lang.Exception" level="DEBUG" additivity="false">
+            <appender-ref ref="console"/>
+        </logger>
+        <root level="DEBUG">
+            <appender-ref ref="console"/>
+        </root>
+    </springProfile>
+
+    <logger name="ru.mephi.alumniclub.broadcast.service.impl.EmailSenderImpl" level="INFO" additivity="false">
+        <appender-ref ref="springLog"/>
+        <appender-ref ref="console"/>
+    </logger>
+
+    <root level="ERROR">
+        <appender-ref ref="console"/>
+    </root>
+</configuration>

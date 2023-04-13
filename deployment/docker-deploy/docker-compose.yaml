@@ -1,0 +1,307 @@
+version: '3.8'
+services:
+  app:
+    image: devops-it.mephi.ru/alumniclub/app:latest
+    working_dir: "/usr/src"
+    env_file:
+      - "../env/.env"
+    volumes:
+      - "../data/app/logs:/usr/src/logs"
+      - "../data/app/uploads:/usr/src/uploads"
+    networks:
+      - "common-network"
+    ports:
+      - "8081:8081"
+    depends_on:
+      - rabbitmq
+      - mysql
+      - redis
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  broadcast-service:
+    image: devops-it.mephi.ru/alumniclub/broadcast-service:latest
+    working_dir: "/usr/src"
+    env_file:
+      - "../env/.env"
+    volumes:
+      - "../data/broadcast-service/logs:/usr/src/logs"
+    networks:
+      - "common-network"
+    ports:
+      - "8083:8083"
+    depends_on:
+      - rabbitmq
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  image-service:
+    image: devops-it.mephi.ru/alumniclub/image-service:latest
+    working_dir: "/usr/src"
+    env_file:
+      - "../env/.env"
+    volumes:
+      - "../data/app/uploads:/usr/src/uploads"
+      - "../data/image-service/logs:/usr/src/logs"
+    networks:
+      - "common-network"
+    ports:
+      - "8084:8084"
+    depends_on:
+      - rabbitmq
+      - mysql
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  recommendation-service:
+    image: devops-it.mephi.ru/alumniclub/recommendation-service:latest
+    working_dir: "/usr/src"
+    env_file:
+      - "../env/.env"
+    volumes:
+      - "../data/recommendation-service/logs:/usr/src/logs"
+    networks:
+      - "common-network"
+    ports:
+      - "8085:8085"
+    depends_on:
+      - rabbitmq
+      - mysql
+      - milvus
+      - app
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  mysql:
+    image: mysql:latest
+    env_file:
+      - "../env/.env"
+    volumes:
+      - "../config/init/01.dev.sql:/docker-entrypoint-initdb.d/01.sql"
+      - "../data/mysql:/var/lib/mysql"
+    ports:
+      - "3307:3306"
+    networks:
+      - "common-network"
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  redis:
+    image: redis:7.0.7-bullseye
+    env_file:
+      - "../env/.env"
+    volumes:
+      - "../data/redis:/data"
+    networks:
+      - "common-network"
+    ports:
+      - "6379:6379"
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  rabbitmq:
+    image: rabbitmq:management
+    env_file:
+      - "../env/.env"
+    volumes:
+      - "../data/rabbitmq:/var/lib/rabbitmq/mnesia/"
+    networks:
+      - "common-network"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  prometheus:
+    build:
+      context: .
+      dockerfile: ../docker-common/runPrometheus.Dockerfile
+    user: "0:0"
+    env_file:
+      - "../env/.env"
+    networks:
+      - "common-network"
+    ports:
+      - "9093:9090"
+    volumes:
+      - "../config/prometheus/prometheus.yml:/etc/prometheus/prometheus-orig.yml"
+      - "../config/prometheus/web.yml:/etc/prometheus/web.yml"
+      - "../config/prometheus/rules.yml:/etc/prometheus/rules.yml"
+      - "../data/prometheus:/prometheus"
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  promtail:
+    user: "0:0"
+    build:
+      context: .
+      dockerfile: ../docker-common/runPromtail.Dockerfile
+    env_file:
+      - "../env/.env"
+    networks:
+      - "common-network"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/var/log:/var/log:ro"
+      - "../config/promtail/promtail.yml:/etc/promtail/orig.yml"
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  nodeexporter:
+    image: prom/node-exporter:v1.3.1
+    volumes:
+      - "/proc:/host/proc:ro"
+      - "/sys:/host/sys:ro"
+      - "/:/rootfs:ro"
+    command:
+      - "--path.procfs=/host/proc"
+      - "--path.rootfs=/rootfs"
+      - "--path.sysfs=/host/sys"
+      - "--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)"
+    ports:
+      - "9100:9100"
+    networks:
+      - "common-network"
+    restart: always
+    labels:
+      org.label-schema.group: "monitoring"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.46.0
+    privileged: true
+    devices:
+      - "/dev/kmsg:/dev/kmsg"
+    volumes:
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker:/var/lib/docker:ro"
+      #- /cgroup:/cgroup:ro #doesn't work on macOS only for Linux
+    networks:
+      - "common-network"
+    restart: always
+    labels:
+      org.label-schema.group: "monitoring"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  etcd:
+    image: quay.io/coreos/etcd:v3.5.5
+    environment:
+      ETCD_AUTO_COMPACTION_MODE: revision
+      ETCD_AUTO_COMPACTION_RETENTION: 1000
+      ETCD_QUOTA_BACKEND_BYTES: 4294967296
+      ETCD_SNAPSHOT_COUNT: 50000
+    volumes:
+      - "../data/recommendation-service/milvus/etcd:/etcd"
+    networks:
+      - "common-network"
+    command: etcd -advertise-client-urls=http://127.0.0.1:2379 -listen-client-urls http://0.0.0.0:2379 --data-dir /etcd
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  minio:
+    image: minio/minio:RELEASE.2022-03-17T06-34-49Z
+    environment:
+      MINIO_ACCESS_KEY: ${MINIO_ACCESSKEY:minioadmin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET:miniosecret}
+    ports:
+      - "9001:9001"
+    volumes:
+      - "../data/recommendation-service/milvus/minio:/minio_data"
+    command: minio server /minio_data --console-address ":9001"
+    networks:
+      - "common-network"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  milvus:
+    image: milvusdb/milvus:2.2.0-latest
+    platform: linux/amd64
+    command: [ "milvus", "run", "standalone" ]
+    env_file:
+      - "../env/.env"
+    volumes:
+      - "../data/recommendation-service/milvus/milvus:/var/lib/milvus"
+    ports:
+      - "19530:19530"
+      - "9099:9099"
+    networks:
+      - "common-network"
+    depends_on:
+      - "etcd"
+      - "minio"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
+
+  postfix:
+    image: marvambass/versatile-postfix:latest
+    command:
+      - alumniclub.mephi.ru
+      - no-reply:@TC4WUxXuzvduMGmz
+    ports:
+      - "25:25"
+    volumes:
+      - ../data/postfix/spool:/var/spool/postfix
+      - ../data/postfix/log:/var/log
+      - ../data/postfix/keys/private.pem:/etc/postfix/dkim/dkim.key
+    restart: always
+
+networks:
+  common-network:
+    external: true

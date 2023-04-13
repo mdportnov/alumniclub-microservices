@@ -1,0 +1,30 @@
+complexity:
+  TooManyFunctions:
+    thresholdInClasses: 30
+    thresholdInInterfaces: 30
+  LongParameterList:
+    constructorThreshold: 30
+    functionThreshold: 6
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: false
+  SwallowedException:
+    active: false
+
+performance:
+  active: false
+
+style:
+  SerialVersionUIDInSerializableClass:
+    active: false
+  WildcardImport:
+    active: false
+  ReturnCount:
+    active: false
+  SpacingBetweenPackageAndImports:
+    active: false
+  TrailingWhitespace:
+    active: true
+  MagicNumber:
+    active: false

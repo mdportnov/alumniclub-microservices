@@ -1,0 +1,37 @@
+# Dev Profile Without Docker
+
+debug: true
+
+# Spring
+
+spring:
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:AlumniClubDev}?createIfNotExists=true
+    username: ${MYSQL_USER:admin}
+    password: ${MYSQL_PASSWORD:password}
+
+  devtools:
+    restart:
+      log-condition-evaluation-delta: false
+      enabled: true
+
+  redis:
+    host: localhost
+    port: 6379
+
+# RabbitMQ
+
+rabbitmq:
+  host: localhost
+  port: 49154
+  username: admin
+  password: password
+  replyTimeout: 60000
+
+# API Documentation
+
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true
